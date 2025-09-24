@@ -9,17 +9,21 @@
 #' @param num_boots Number of bootstrap replicates (default 500)
 #' @param seed Random seed for reproducibility (default 2025)
 #' @param samp_stages Sampling method by stage for RWYB bootstrap (e.g., c("PPSWR", "Poisson"))
+#' @param parellel Logical whether bootstraping should be done in parallel
+#' @param n_cores number of cores to be used for parallelization
 #' @importFrom survey svydesign
 #' @importFrom svrep make_rwyb_bootstrap_weights
 #' @importFrom dplyr mutate group_by summarize row_number
 #' @importFrom stats as.formula
+#' @importFrom parallelly availableCores parallel_lapply
 #' @return An array of bootstrap coefficient estimates of dimension p x L x num_boots
 #'
 #' @keywords internal
 #' @noRd
 run_boots <- function(data, X_base, Y_mat, weights = NULL, boot_type,
                       family = "gaussian", num_boots = 500,
-                      seed = 2025, L, samp_stages = NULL) {
+                      seed = 2025, L, samp_stages = NULL,
+                      parallel = FALSE, n_cores = NULL) {
 
   if (!(boot_type %in% c("BRR", "RWYB", "weighted", "unweighted"))) {
     stop("boot_type must be one of 'BRR', 'RWYB', 'weighted', 'unweighted'")
@@ -46,6 +50,23 @@ run_boots <- function(data, X_base, Y_mat, weights = NULL, boot_type,
   # initalize array to store matrices
   betaTilde_boot <- NULL
   n = nrow(data)
+
+  # parallel options
+  if (parallel) {
+    if (is.null(n_cores)) {
+      n_cores <- parallelly::availableCores() - 1
+      message("using ", n_cores, " cores for parallelization")
+    }
+    old_plan <- future::plan()
+    on.exit(future::plan(old_plan), add = TRUE)
+    future::plan(future::multisession, workers = n_cores)
+    lapply_fn <- function(X, FUN) {
+      future.apply::future_lapply(X, FUN, future.seed = TRUE)
+    }
+  } else {
+    lapply_fn <- lapply
+  }
+
   # ----- generate bootstrap indices or weights -----
   if (boot_type %in% c("weighted", "unweighted")) {
     # Determine the weight vector
@@ -67,7 +88,7 @@ run_boots <- function(data, X_base, Y_mat, weights = NULL, boot_type,
       simplify = FALSE
     )
 
-    coefs <- lapply(boot_indices, function(idx) {
+    coefs <- lapply_fn(boot_indices, function(idx) {
       X_tmp <- X_base[idx, , drop = FALSE]
       Y_tmp <- Y_mat[idx, , drop = FALSE]
       w_tmp <- if (!is.null(probs)) weights[idx] else NULL   # use weights if weighted otherwise unweighted
@@ -90,7 +111,7 @@ run_boots <- function(data, X_base, Y_mat, weights = NULL, boot_type,
     }
     indices <- replicate(num_boots, sample_data(data), simplify = FALSE)
 
-    coefs <- lapply(indices, function(idx_df) {
+    coefs <- lapply_fn(indices, function(idx_df) {
       dat_tmp <- data %>% dplyr::inner_join(idx_df, by = c("psu", "strata")) %>%
         dplyr::mutate(weight = weight * 2)
       X_tmp <- X_base[dat_tmp$row_id, , drop = FALSE]
@@ -122,7 +143,7 @@ run_boots <- function(data, X_base, Y_mat, weights = NULL, boot_type,
       output = "weights"
     )
 
-    coefs <- lapply(seq_len(num_boots), function(r) {
+    coefs <- lapply_fn(seq_len(num_boots), function(r) {
       coef_fun(X_base, Y_mat, rwyb_wts[, r])
     })
     betaTilde_boot <- simplify2array(coefs)
