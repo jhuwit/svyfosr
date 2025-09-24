@@ -13,21 +13,21 @@
 #' @keywords internal
 #' @noRd
 lm_wls_multi <- function(X, Y, w = NULL) {
-  stopifnot(is.matrix(X), is.matrix(Y))
+  assertthat::assert_that(is.matrix(X), is.matrix(Y), msg = "X and Y must be matrices")
   n <- nrow(X); p <- ncol(X); B <- ncol(Y)
-  stopifnot(nrow(Y) == n)
+  assertthat::assert_that(nrow(Y) == n, msg = "X and Y must have the same number of rows")
 
-  # X: (n × p), Y: (n × L), w: (n)
-  if (is.null(w)) {
-    coef_mat <- qr.coef(qr(X), Y)
-  } else {
-    W_half <- sqrt(w)
-    Xw <- X * W_half
-    Yw <- Y * W_half
-    # Solve weighted least squares for all outcomes at once
-    coef_mat <- qr.coef(qr(Xw), Yw)
-  }
-  # returns (p × L) coefficient matrix
+  # ---- process weights ----
+  if (is.null(w)) w = rep(1, n)   # default: equal weights
+
+  assertthat::assert_that(is.numeric(w), length(w) == n, msg = "w must be numeric with length n")
+
+  # ---- weighted WLS ----
+  W_half <- sqrt(w)
+  Xw <- X * W_half
+  Yw <- Y * W_half
+  coef_mat <- qr.coef(qr(Xw), Yw)
+
   coef_mat
 }
 
@@ -55,11 +55,11 @@ lm_wls_multi <- function(X, Y, w = NULL) {
 #' @keywords internal
 #' @noRd
 glm_batch_multiY <- function(
-    X, Y, w = NULL,
+    X, Y, w = NULL, data = NULL,       # data optional if w is a column name
     family,
     add_intercept = FALSE,
-    offset = NULL,              # length-n or n x B (broadcasted if needed)
-    start = NULL,               # optional p[+1]-vector to warm start all columns
+    offset = NULL,
+    start = NULL,
     maxit = 50, tol = 1e-8, ridge = 1e-8,
     return_se = FALSE, estimate_phi = FALSE, verbose = FALSE
 ) {
@@ -67,15 +67,15 @@ glm_batch_multiY <- function(
   n <- nrow(X); p <- ncol(X); B <- ncol(Y)
   stopifnot(nrow(Y) == n)
 
-  if (is.null(w)) {
-    w <- rep(1, n)   # no weights → all equal to 1
-  }
-  stopifnot(length(w) == n, is.numeric(w))
+  # ---- process weights ----
+  if (is.null(w)) w <- rep(1, n)   # default: equal weights
+
+  stopifnot(is.numeric(w), length(w) == n)
 
   if (add_intercept) X <- cbind(Intercept = 1, X)
   p <- ncol(X)
 
-  # offsets: allow NULL (zeros), length-n (shared), n x 1 (shared), or n x B (per column)
+  # ---- offsets ----
   if (is.null(offset)) {
     offset <- matrix(0, n, B)
   } else if (is.vector(offset) && length(offset) == n) {
@@ -83,130 +83,64 @@ glm_batch_multiY <- function(
   } else if (is.matrix(offset) && nrow(offset) == n && ncol(offset) == 1) {
     offset <- matrix(offset[,1], n, B)
   } else if (is.matrix(offset) && nrow(offset) == n && ncol(offset) == B) {
-    # as provided
+    # as is
   } else {
     stop("offset must be NULL, length-n, n×1, or n×B")
   }
 
-  # family bits
+  # ---- family functions ----
   linkinv    <- family$linkinv
   mu_eta_fun <- family$mu.eta
   variance   <- family$variance
   dev_resids <- family$dev.resids
-
   eps <- .Machine$double.eps^(2/3)
 
-  # warm start
-  if (!is.null(start)) {
+  # ---- IRLS init ----
+  Beta <- if (!is.null(start)) {
     stopifnot(length(start) == p)
-    Beta <- matrix(start, p, B)
-  } else {
-    Beta <- matrix(0, p, B)
-  }
+    matrix(start, p, B)
+  } else matrix(0, p, B)
 
-  # Precompute X' once
   Xt <- t(X)
-
   converged <- rep(FALSE, B)
-  it <- 0L
 
   for (it in seq_len(maxit)) {
-    # ETA & MU (n x B)
-    Eta <- X %*% Beta
-    Eta <- Eta + offset
+    Eta <- X %*% Beta + offset
     Eta <- pmin(pmax(Eta, -35), 35)
     Mu  <- linkinv(Eta)
 
-    # dμ/dη and Var(μ) (n x B)
     mu_eta <- mu_eta_fun(Eta); mu_eta[abs(mu_eta) < eps] <- eps
-    VarMu  <- variance(Mu);    VarMu[VarMu  < eps] <- eps
-    if (is.vector(VarMu) && length(VarMu) == n * B) VarMu <- matrix(VarMu, n, B)  # expand vector to n × B
+    VarMu  <- variance(Mu); VarMu[VarMu < eps] <- eps
+    if (is.vector(VarMu) && length(VarMu) == n * B) VarMu <- matrix(VarMu, n, B)
 
-    # IRLS working weights and responses
-    # Ww = w * (dμ/dη)^2 / Var(μ)  (n x B), z = η + (y - μ) / (dμ/dη)
-    Ww <- (mu_eta^2 / VarMu)
-    Ww <- Ww * matrix(w, n, B)      # broadcast w across columns
+    Ww <- (mu_eta^2 / VarMu) * matrix(w, n, B)
     Z  <- Eta + (Y - Mu) / mu_eta
 
-    # RHS for all fits at once: X' (Ww * Z)  (p x B)
     RHS <- Xt %*% (Ww * Z)
-
     step_max <- rep(0, B)
     active <- which(!converged)
     if (!length(active)) break
 
-    # For each column, H_b = X' diag(w * s_b) X where s_b = (dμ/dη)^2 / Var(μ)
-    s_all <- (mu_eta^2 / VarMu)      # n x B (without prior weights)
+    s_all <- (mu_eta^2 / VarMu)
     for (b in active) {
-      wb <- w * s_all[, b]           # length-n
+      wb <- w * s_all[, b]
       if (!any(is.finite(wb)) || sum(wb) < eps) next
-
-      # Efficient: crossprod(X, wb * X) without forming diag
       Xw <- X * wb
       H  <- Xt %*% Xw
       diag(H) <- diag(H) + ridge
-
       beta_new <- tryCatch({
         Rchol <- chol(H)
         backsolve(Rchol, forwardsolve(t(Rchol), RHS[, b]))
       }, error = function(e) solve(H, RHS[, b], tol = 1e-12))
-
       step_max[b] <- max(abs(beta_new - Beta[, b]))
       Beta[, b]   <- beta_new
     }
 
-    newly_conv <- (!converged) & (step_max < tol)
-    converged[newly_conv] <- TRUE
-
-    if (verbose) {
-      cat(sprintf("Iter %d: active=%d, max step=%.3e\n",
-                  it, length(active), if (length(active)) max(step_max[active]) else 0))
-    }
+    converged[(!converged) & (step_max < tol)] <- TRUE
     if (all(converged)) break
   }
 
   out <- list(coef = Beta, iter = it, converged = converged)
-
-  if (return_se) {
-    # recompute at solution
-    Eta <- X %*% Beta + offset
-    Eta <- pmin(pmax(Eta, -35), 35)
-    Mu  <- linkinv(Eta)
-    mu_eta <- mu_eta_fun(Eta); mu_eta[abs(mu_eta) < eps] <- eps
-    VarMu  <- variance(Mu);    VarMu[VarMu  < eps] <- eps
-    if (is.vector(VarMu) && length(VarMu) == n * B) VarMu <- matrix(VarMu, n, B)  # expand vector to n × B
-    s_all  <- (mu_eta^2 / VarMu)
-
-    # dispersion (φ) per column if needed
-    fam_name <- tolower(family$family)
-    phi <- rep(1, B)
-    needs_phi <- estimate_phi && !grepl("binomial|poisson", fam_name)
-    if (needs_phi) {
-      for (b in seq_len(B)) {
-        wb <- w
-        wb[!is.finite(wb) | wb < 0] <- 0
-        phi[b] <- sum(dev_resids(Y[, b], Mu[, b], wb)) / max(n - p, 1L)
-      }
-    }
-
-    SE <- matrix(NA_real_, p, B, dimnames = list(colnames(X), colnames(Y)))
-    vcov_list <- vector("list", B)
-    for (b in seq_len(B)) {
-      wb <- w * s_all[, b]
-      if (!any(is.finite(wb)) || sum(wb) < eps) next
-      H <- Xt %*% (X * wb)
-      diag(H) <- diag(H) + ridge
-      invH <- tryCatch({
-        Rchol <- chol(H); chol2inv(Rchol)
-      }, error = function(e) solve(H, tol = 1e-12))
-      vc <- invH * phi[b]
-      vcov_list[[b]] <- vc
-      SE[, b] <- sqrt(pmax(diag(vc), 0))
-    }
-    out$se <- SE
-    out$vcov <- vcov_list
-    out$phi <- phi
-  }
-
-  out
+  return(out)
 }
+

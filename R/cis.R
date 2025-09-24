@@ -11,7 +11,10 @@
 #' @param nknots_min Minimum number of knots for smoothing (optional)
 #' @param nknots_min_cov Minimum number of knots for covariance smoothing (default 35)
 #' @param mult_fac Multiplicative factor for variance inflation (default 1.2)
-
+#' @importFrom refund fpca.face
+#' @importFrom mgcv gam
+#' @importFrom stats rnorm quantile
+#' @importFrom Rfast colVars
 #' @return a list with components:
 #' betaHat, the smoothed coefficient estimate matrix (p x L)
 #' betaHat.var the variance estimate array (L x L x p)
@@ -29,8 +32,9 @@ get_cis = function(betaTilde_boot,
                    nknots_min_cov = 35,
                    mult_fac = 1.2) {
   argvals = 1:L
-  B = ncol(betaTilde_boot[1, , ])
-  nknots <- min(round(L / 2), nknots_min)
+  B <- dim(betaTilde_boot)[3]
+  nknots <- if (is.null(nknots_min)) round(L / 2) else min(round(L / 2), nknots_min)
+
   nknots_cov <- ifelse(is.null(nknots_min_cov), 35, nknots_min_cov)
   nknots_fpca <- min(round(L / 2), 35)
   betaHat_boot <- array(NA, dim = c(nrow(betaHat), ncol(betaHat), ncol(betaTilde_boot[1, , ])))
@@ -40,7 +44,7 @@ get_cis = function(betaTilde_boot,
 
   for (b in 1:B) {
     betaHat_boot[, , b] <- t(apply(betaTilde_boot[, , b], 1, function(x)
-      gam(x ~ s(
+      mgcv::gam(x ~ s(
         argvals, bs = "tp", k = (nknots + 1)
       ), method = "GCV.Cp")$fitted.values))
   }

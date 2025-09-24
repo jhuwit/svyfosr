@@ -5,14 +5,14 @@
 \title{Survey-weighted Functional on Scalar Regression}
 \usage{
 svyfui(
+  formula,
   data,
-  family = "gaussian",
-  boot_type,
-  weighted = TRUE,
+  weights = NULL,
+  family = gaussian(),
+  boot_type = "weighted",
   num_boots = 500,
   nknots_min = NULL,
   seed = 2025,
-  model_formula = as.formula("Y ~ X1 + X2"),
   ...
 )
 }
@@ -29,9 +29,9 @@ svyfui(
 
 \item{seed}{Random seed for reproducibility.}
 
-\item{model_formula}{Formula with functional outcome on predictors, e.g. \code{Y ~ X1 + X2}.}
-
 \item{...}{Additional arguments passed to helpers.}
+
+\item{model_formula}{Formula with functional outcome on predictors, e.g. \code{Y ~ X1 + X2}.}
 
 \item{estimator_type}{Type of estimator: "weighted" or "unweighted".}
 }
