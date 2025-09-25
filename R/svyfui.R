@@ -3,19 +3,22 @@
 #' @description A high-level wrapper for running survey-weighted
 #'   function-on-scalar regression with bootstrap inference.
 #'
-#' @param model_formula Formula with functional outcome on predictors, e.g. \code{Y ~ X1 + X2}.
+#' @param formula Formula with functional outcome on predictors, e.g. \code{Y ~ X1 + X2}.
 #' @param data A data frame with functional outcome columns, predictors, weights, etc.
 #' @param weights Optional column name for weights or external weight vector
 #' @param family Outcome distribution family (e.g., "gaussian", "binomial").
-#' @param estimator_type Type of estimator: "weighted" or "unweighted".
 #' @param boot_type Bootstrap method: "BRR", "Rao-Wu-Yue-Beaumont", "weighted", "unweighted".
 #' @param num_boots Number of bootstrap replicates.
 #' @param nknots_min Minimum number of knots for smoothing (optional).
 #' @param seed Random seed for reproducibility.
+#' @param conf_level_joint Confidence level for joint confidence intervals (default 0.95).
+#' @param conf_level_pw Confidence level for pointwise confidence intervals (default 0.95).
 #' @param ... Additional arguments passed to helpers.
 #'
-#' @importFrom stats model.matrix as.formula
-#' @importFrom rlang is_symbol as_name
+#' @importFrom stats model.matrix as.formula model.frame qnorm model.response model.weights var gaussian
+#' @importFrom tibble tibble
+#' @importFrom dplyr mutate
+#' @importFrom purrr map_dfr
 #' @return A list with components:
 #'   \item{betaHat}{Smoothed coefficient functions}
 #'   \item{cis}{Bootstrap confidence intervals}
@@ -30,6 +33,8 @@ svyfui <- function(formula,
                    num_boots = 500,
                    nknots_min = NULL,
                    seed = 2025,
+                   conf_level_pw = 0.95,
+                   conf_level_joint = 0.95,
                    ...) {
 
   # deal with weights (copied from glm fn)
@@ -68,19 +73,37 @@ svyfui <- function(formula,
     seed = seed,
     X_base = X_base,
     Y_mat = Y_mat,
-    L = ncol(betaHat),
     ...
   )
-  ### start here
-  # Step 4: Compute confidence intervals
   cis <- get_cis(betaTilde_boot = boots,
                  betaHat = betaHat,
                  L = ncol(betaHat),
-                 nknots_min = nknots_min)
+                 nknots_min = nknots_min,
+                 conf_level = conf_level_joint)
+
+  ## step 5: make into tidy data frame
+  num_var = nrow(betaHat)
+  m = stats::qnorm((1 + conf_level_pw) / 2) # pw ci multiplier
+
+  plt_df = purrr::map_dfr(
+    .x = 1:num_var,
+    .f = function(r) {
+      tibble::tibble(
+        l = 1:length(betaHat[r, ]),
+        beta_hat = betaHat[r, ],
+        lower_pw = betaHat[r, ] - m * sqrt(diag(cis$betaHat.var[ , , r])),
+        upper_pw = betaHat[r, ] + m * sqrt(diag(cis$betaHat.var[ , ,r ])),
+        lower_joint = betaHat[r, ] - cis$qn[r] * sqrt(diag(cis$betaHat.var[, , r])),
+        upper_joint = betaHat[r, ] + cis$qn[r] * sqrt(diag(cis$betaHat.var[, , r]))
+      ) %>%
+        dplyr::mutate(var_name = betaHat %>% rownames() %>% .[r])
+    }
+  )
 
   out <- list(betaHat = betaHat,
               boots = boots,
-              cis = cis)
+              cis = cis,
+              tidy_df = plt_df)
   class(out) <- "svyfui"
   return(out)
 }

@@ -11,12 +11,12 @@
 #' @param nknots_min Minimum number of knots for smoothing (optional)
 #' @param nknots_min_cov Minimum number of knots for covariance smoothing (default 35)
 #' @param mult_fac Multiplicative factor for variance inflation (default 1.2)
+#' @param conf_level Confidence level for joint CIs (default 0.95)
 #' @importFrom refund fpca.face
 #' @importFrom mgcv gam
 #' @importFrom stats rnorm quantile
 #' @importFrom Rfast colVars
 #' @return a list with components:
-#' betaHat, the smoothed coefficient estimate matrix (p x L)
 #' betaHat.var the variance estimate array (L x L x p)
 #' qn the critical values for joint CIs for each coefficient (length p)
 #'
@@ -30,7 +30,8 @@ get_cis = function(betaTilde_boot,
                    L,
                    nknots_min = NULL,
                    nknots_min_cov = 35,
-                   mult_fac = 1.2) {
+                   mult_fac = 1.2,
+                   conf_level = 0.95) {
   argvals = 1:L
   B <- dim(betaTilde_boot)[3]
   nknots <- if (is.null(nknots_min)) round(L / 2) else min(round(L / 2), nknots_min)
@@ -93,11 +94,10 @@ get_cis = function(betaTilde_boot,
     z <- sweep(z, 2, Sigma_sd, "/")          # standardize
     un <- apply(abs(z), 1, max)              # row-wise max of absolute values
 
-    qn[i] <- stats::quantile(un, 0.95)
+    qn[i] <- stats::quantile(un, conf_level)
   }
 
   return(list(
-    betaHat = betaHat,
     betaHat.var = betaHat.var,
     qn = qn
   ))

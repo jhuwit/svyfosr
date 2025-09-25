@@ -7,6 +7,7 @@
 #' @param Y Matrix of functional outcomes (rows = subjects, columns = functional points)
 #' @param w Optional vector of weights for weighted regression
 #'
+#' @importFrom assertthat assert_that
 #' @return A matrix of coefficient estimates \eqn{B} with
 #'   predictors in rows and time/functional points in columns.
 #'
@@ -49,6 +50,7 @@ lm_wls_multi <- function(X, Y, w = NULL) {
 #' @param estimate_phi Whether to estimate dispersion parameter φ for non-Poisson/Binomial families (default FALSE)
 #' @param verbose Whether to print iteration info (default FALSE)
 #'
+#' @importFrom assertthat assert_that
 #' @return A matrix of coefficient estimates \eqn{B} with
 #'   predictors in rows and time/functional points in columns.
 #'
@@ -63,14 +65,15 @@ glm_batch_multiY <- function(
     maxit = 50, tol = 1e-8, ridge = 1e-8,
     return_se = FALSE, estimate_phi = FALSE, verbose = FALSE
 ) {
-  stopifnot(is.matrix(X), is.matrix(Y))
+  assertthat::assert_that(is.matrix(X), is.matrix(Y), msg = "X and Y must be matrices")
   n <- nrow(X); p <- ncol(X); B <- ncol(Y)
-  stopifnot(nrow(Y) == n)
+  assertthat::assert_that(nrow(Y) == n, msg = "X and Y must have the same number of rows")
 
   # ---- process weights ----
   if (is.null(w)) w <- rep(1, n)   # default: equal weights
 
-  stopifnot(is.numeric(w), length(w) == n)
+
+  assertthat::assert_that(is.numeric(w), length(w) == n, msg = "w must be numeric with length n")
 
   if (add_intercept) X <- cbind(Intercept = 1, X)
   p <- ncol(X)

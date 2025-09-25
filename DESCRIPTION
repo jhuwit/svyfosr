@@ -1,8 +1,10 @@
 Package: svyfosr
-Title: What the Package Does (One Line, Title Case)
+Title: Survey-Weighted Function on Scalar Regression
 Version: 0.0.0.9000
-Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"))
+Authors@R: c(
+    person("Lily", "Koffman", email = "koffmanlily@gmail.com", role = c("aut", "cre")),
+    person("John", "Muschelli", email = "muschellij2@gmail.com", role = "aut")
+  )
 Description: What the package does (one paragraph).
 License: MIT + file LICENSE
 Encoding: UTF-8
@@ -14,11 +16,16 @@ Config/testthat/edition: 3
 Imports: 
     assertthat,
     dplyr,
+    future,
+    future.apply,
+    ggplot2,
     magrittr,
     mgcv,
     parallelly,
+    purrr,
     refund,
     Rfast,
     stats,
     survey,
-    svrep
+    svrep,
+    tibble

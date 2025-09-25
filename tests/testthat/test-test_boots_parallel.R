@@ -21,9 +21,10 @@ test_that("weighted bootstrap returns array with expected dimensions in parallel
     family = gaussian(),
     num_boots = n_boot,
     seed = 1012,
-    L = L,
     parallel = TRUE
   )
   expect_true(is.array(boots))
-  expect_true(dim(boots) == c(ncol(X_base), L, 100))
+  expect_true(dim(boots)[1] == ncol(X_base))
+  expect_true(dim(boots)[2] == L)
+  expect_true(dim(boots)[3] == 100)
 })

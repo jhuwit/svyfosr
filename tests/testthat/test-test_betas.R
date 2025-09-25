@@ -15,13 +15,13 @@ test_that("get_betatilde returns a matrix with expected dimensions", {
   beta_tilde <- get_betatilde(
     family = "gaussian",
     Y_mat = dat$Y,
-    X_mat = X_mat,
+    X_mat = X_base,
     w = dat$weights
   )
 
   expect_true(is.matrix(beta_tilde))
   expect_equal(ncol(beta_tilde), L)
-  expect_equal(nrow(beta_tilde), 2) # two predictors (X1, X2)
+  expect_equal(nrow(beta_tilde), 3) # two predictors (X1, X2)
 })
 
 test_that("get_betatilde works for non-gaussian families", {
@@ -41,13 +41,13 @@ test_that("get_betatilde works for non-gaussian families", {
   beta_tilde <- get_betatilde(
     family = "binomial",
     Y_mat = dat$Y,
-    X_mat = X_mat,
+    X_mat = X_base,
     w = dat$weights
   )
 
   expect_true(is.matrix(beta_tilde))
   expect_equal(ncol(beta_tilde), L)
-  expect_equal(nrow(beta_tilde), 2) # two predictors (X1, X2)
+  expect_equal(nrow(beta_tilde), 3) # two predictors (X1, X2) and intercept
 })
 
 test_that("get_betahat smooths correctly", {

@@ -4,12 +4,17 @@
 \name{svyfosr-package}
 \alias{svyfosr}
 \alias{svyfosr-package}
-\title{svyfosr: What the Package Does (One Line, Title Case)}
+\title{svyfosr: Survey-Weighted Function on Scalar Regression}
 \description{
 What the package does (one paragraph).
 }
 \author{
-\strong{Maintainer}: First Last \email{first.last@example.com}
+\strong{Maintainer}: Lily Koffman \email{koffmanlily@gmail.com}
+
+Authors:
+\itemize{
+  \item John Muschelli \email{muschellij2@gmail.com}
+}
 
 }
 \keyword{internal}

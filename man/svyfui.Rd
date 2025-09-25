@@ -13,11 +13,17 @@ svyfui(
   num_boots = 500,
   nknots_min = NULL,
   seed = 2025,
+  conf_level_pw = 0.95,
+  conf_level_joint = 0.95,
   ...
 )
 }
 \arguments{
+\item{formula}{Formula with functional outcome on predictors, e.g. \code{Y ~ X1 + X2}.}
+
 \item{data}{A data frame with functional outcome columns, predictors, weights, etc.}
+
+\item{weights}{Optional column name for weights or external weight vector}
 
 \item{family}{Outcome distribution family (e.g., "gaussian", "binomial").}
 
@@ -29,11 +35,11 @@ svyfui(
 
 \item{seed}{Random seed for reproducibility.}
 
+\item{conf_level_pw}{Confidence level for pointwise confidence intervals (default 0.95).}
+
+\item{conf_level_joint}{Confidence level for joint confidence intervals (default 0.95).}
+
 \item{...}{Additional arguments passed to helpers.}
-
-\item{model_formula}{Formula with functional outcome on predictors, e.g. \code{Y ~ X1 + X2}.}
-
-\item{estimator_type}{Type of estimator: "weighted" or "unweighted".}
 }
 \value{
 A list with components:

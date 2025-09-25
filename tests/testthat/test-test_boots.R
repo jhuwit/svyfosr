@@ -20,11 +20,12 @@ test_that("weighted bootstrap returns array with expected dimensions", {
     boot_type = "weighted",
     family = gaussian(),
     num_boots = n_boot,
-    seed = 1012,
-    L = L
+    seed = 1012
   )
   expect_true(is.array(boots))
-  expect_true(dim(boots) == c(ncol(X_base), L, 100))
+  expect_true(dim(boots)[1] == ncol(X_base))
+  expect_true(dim(boots)[2] == L)
+  expect_true(dim(boots)[3] == 100)
 })
 
 test_that("unweighted bootstrap returns array with expected dimensions", {
@@ -49,8 +50,7 @@ test_that("unweighted bootstrap returns array with expected dimensions", {
     boot_type = "unweighted",
     family = gaussian(),
     num_boots = n_boot,
-    seed = 1012,
-    L = L
+    seed = 1012
   )
   expect_true(is.array(boots))
   expect_true(dim(boots)[1] == ncol(X_base))
@@ -82,8 +82,7 @@ test_that("BRR bootstrap returns array with expected dimensions", {
     boot_type = "BRR",
     family = gaussian(),
     num_boots = n_boot,
-    seed = 1012,
-    L = L
+    seed = 1012
   )
   expect_true(is.array(boots))
   expect_true(dim(boots)[1] == ncol(X_base))
@@ -115,11 +114,10 @@ test_that("RWYB bootstrap returns array with expected dimensions", {
     Y_mat,
     weights = weights,
     boot_type = "RWYB",
-    samp_stages= c("PPSWOR", "PPSWR"),
+    samp_method_by_stage= c("PPSWOR", "PPSWR"),
     family = gaussian(),
     num_boots = n_boot,
-    seed = 1012,
-    L = L
+    seed = 1012
   )
   expect_true(is.array(boots))
   expect_true(dim(boots)[1] == ncol(X_base))

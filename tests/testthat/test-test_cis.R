@@ -11,9 +11,8 @@ test_that("CIs return list with expected dimensions", {
                    beta_hat,
                    L = L)
   expect_true(is.list(ci_res))
-  expect_equal(ci_res[[1]], beta_hat)
-  expect_true(is.array(ci_res[[2]]))
-  expect_equal(dim(ci_res[[2]]), c(L, L, p))
-  expect_true(is.vector(ci_res[[3]]))
-  expect_true(length(ci_res[[3]]) == p)
+  expect_true(is.array(ci_res[[1]]))
+  expect_equal(dim(ci_res[[1]]), c(L, L, p))
+  expect_true(is.vector(ci_res[[2]]))
+  expect_true(length(ci_res[[2]]) == p)
 })

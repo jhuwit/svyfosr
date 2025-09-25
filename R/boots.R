@@ -4,26 +4,37 @@
 #' Computes bootstrap replicates for different bootstrap methods.
 #' Implemented in \code{\link{svyfui}}
 #' @param data A data frame with functional outcome columns, predictors, weights, etc.
+#' @param X_base Design matrix of predictors (n x (p + 1)) including intercept
+#' @param Y_mat Matrix of functional outcomes (n x L, each column is a time point)
+#' @param weights External weight vector (length n)
 #' @param boot_type Bootstrap method: "BRR", "RWYB", "weighted", "unweighted"
 #' @param family Error distribution family (e.g., "gaussian", "binomial", "poisson")
 #' @param num_boots Number of bootstrap replicates (default 500)
 #' @param seed Random seed for reproducibility (default 2025)
-#' @param samp_stages Sampling method by stage for RWYB bootstrap (e.g., c("PPSWR", "Poisson"))
+#' @param samp_method_by_stage Sampling method by stage for RWYB bootstrap (e.g., c("PPSWR", "Poisson"))
 #' @param parellel Logical whether bootstraping should be done in parallel
 #' @param n_cores number of cores to be used for parallelization
 #' @importFrom survey svydesign
 #' @importFrom svrep make_rwyb_bootstrap_weights
 #' @importFrom dplyr mutate group_by summarize row_number
 #' @importFrom stats as.formula
-#' @importFrom parallelly availableCores parallel_lapply
+#' @importFrom parallelly availableCores
+#' @importFrom future plan multisession
+#' @importFrom future.apply future_lapply
+#' @importFrom assertthat assert_that
 #' @return An array of bootstrap coefficient estimates of dimension p x L x num_boots
 #'
 #' @keywords internal
 #' @noRd
 run_boots <- function(data, X_base, Y_mat, weights = NULL, boot_type,
                       family = "gaussian", num_boots = 500,
-                      seed = 2025, L, samp_stages = NULL,
+                      seed = 2025, samp_method_by_stage = NULL,
                       parallel = FALSE, n_cores = NULL) {
+
+  if (!all(samp_method_by_stage %in% c("SRSWR", "SRSWOR", "PPSWR",
+                                       "PPSWOR", "POISSON"))) {
+    stop("Each element of `samp_method_by_stage` must be one of the following: \"SRSWR\", \"SRSWOR\", \"PPSWR\", \"PPSWOR\", or \"Poisson\"")
+  }
 
   if (!(boot_type %in% c("BRR", "RWYB", "weighted", "unweighted"))) {
     stop("boot_type must be one of 'BRR', 'RWYB', 'weighted', 'unweighted'")
@@ -41,7 +52,7 @@ run_boots <- function(data, X_base, Y_mat, weights = NULL, boot_type,
     if (family$family == "gaussian") {
       lm_wls_multi(X_tmp, Y_tmp, w = w_tmp)
     } else {
-      glm_batch_multiY(X = X_tmp, y_mat = Y_tmp, w = w_tmp, family = family,
+      glm_batch_multiY(X = X_tmp, Y = Y_tmp, w = w_tmp, family = family,
                        return_se = FALSE, add_intercept = FALSE)$coef
     }
   }
@@ -125,7 +136,7 @@ run_boots <- function(data, X_base, Y_mat, weights = NULL, boot_type,
     if (!all(c("strata", "psu", "weight", "p_stage1", "p_stage2") %in% colnames(data))) {
       stop("RWYB bootstrap requires strata, psu, weight, p_stage1, p_stage2")
     }
-    if (is.null(samp_stages) || length(samp_stages) != 2) stop("Specify samp_stages of length 2")
+    if (is.null(samp_method_by_stage)) stop("Specify samp_method_by_stage")
     if (!("id" %in% colnames(data))) {
       data <- data %>% dplyr::mutate(id = dplyr::row_number())
       message("Creating 'id' column for data")
@@ -138,7 +149,7 @@ run_boots <- function(data, X_base, Y_mat, weights = NULL, boot_type,
       samp_unit_ids = svy_design$cluster,
       strata_ids = svy_design$strata,
       samp_unit_sel_probs = matrix(c(data$p_stage1, data$p_stage2), ncol = 2),
-      samp_method_by_stage = samp_stages,
+      samp_method_by_stage = samp_method_by_stage,
       allow_final_stage_singletons = TRUE,
       output = "weights"
     )

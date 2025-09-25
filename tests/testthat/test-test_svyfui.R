@@ -16,12 +16,12 @@ test_that("svyfui works", {
 
 
   test_res = svyfui(Y ~ X1 + X2, data = dat, weights = weight, family = gaussian(),
-                    boot_type = "RWYB", samp_stages= c("PPSWOR", "PPSWR"),
-                    num_boots = n_boot, seed = 1012, nknots_min = 5)
+                    boot_type = "RWYB", samp_method_by_stage = c("PPSWOR", "PPSWR"),
+                    num_boots = n_boot, seed = 1012, nknots_min = 5, conf_level_pw = 0.95, conf_level_joint = 0.95)
   expect_true(class(test_res) == "svyfui")
   expect_true(is.list(test_res))
-  expect_true(length(test_res) == 3)
-  expect_true(is.matrix(test_res$beta_hat))
-  expect_equal(dim(test_res$beta_hat), c(2, L))
+  expect_true(length(test_res) == 4)
+  expect_true(is.matrix(test_res$betaHat))
+  expect_equal(dim(test_res$betaHat), c(3, L))
   ## add some more
 })
