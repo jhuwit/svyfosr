@@ -47,7 +47,7 @@ lm_wls_multi <- function(X, Y, w = NULL) {
 #' @param tol Convergence tolerance (default 1e-8)
 #' @param ridge Ridge penalty to ensure numerical stability (default 1e-8)
 #' @param return_se Whether to compute and return standard errors (default FALSE)
-#' @param estimate_phi Whether to estimate dispersion parameter φ for non-Poisson/Binomial families (default FALSE)
+#' @param estimate_phi Whether to estimate dispersion parameter phi for non-Poisson/Binomial families (default FALSE)
 #' @param verbose Whether to print iteration info (default FALSE)
 #'
 #' @importFrom assertthat assert_that
@@ -88,7 +88,7 @@ glm_batch_multiY <- function(
   } else if (is.matrix(offset) && nrow(offset) == n && ncol(offset) == B) {
     # as is
   } else {
-    stop("offset must be NULL, length-n, n×1, or n×B")
+    stop("offset must be NULL, length-n, nx1, or nxB")
   }
 
   # ---- family functions ----

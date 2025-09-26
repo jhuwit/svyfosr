@@ -1,3 +1,22 @@
+#' Helper fn to sample data
+#'
+#' @description
+#' Samples data for BRR
+#' Implemented in \code{\link{run_boots}}
+#' @param df A data frame with columns 'strata' and 'psu'
+#' @importFrom dplyr group_by summarize
+#'
+#' @return A data frame with 1 psu selected per stratu,
+#'
+#' @keywords internal
+#' @noRd
+sample_data <- function(df) {
+  strata = psu = NULL
+  rm(list = c("strata", "psu"))
+  df %>% dplyr::group_by(strata) %>%
+    dplyr::summarize(psu = sample(psu, size = 1), .groups = "drop")
+}
+
 #' Bootstrapping
 #'
 #' @description
@@ -30,6 +49,9 @@ run_boots <- function(data, X_base, Y_mat, weights = NULL, boot_type,
                       family = "gaussian", num_boots = 500,
                       seed = 2025, samp_method_by_stage = NULL,
                       parallel = FALSE, n_cores = NULL) {
+
+  strata = psu = weight = NULL
+  rm(list = c("strata", "psu", "weight"))
 
   if (!all(samp_method_by_stage %in% c("SRSWR", "SRSWOR", "PPSWR",
                                        "PPSWOR", "POISSON"))) {
@@ -116,10 +138,6 @@ run_boots <- function(data, X_base, Y_mat, weights = NULL, boot_type,
       dplyr::summarize(n_psu = length(unique(psu)), .groups = "drop")
     if (any(strata_counts$n_psu != 2)) warning("Each strata should have exactly 2 PSUs for BRR")
 
-    sample_data <- function(df) {
-      df %>% dplyr::group_by(strata) %>%
-        dplyr::summarize(psu = sample(psu, size = 1), .groups = "drop")
-    }
     indices <- replicate(num_boots, sample_data(data), simplify = FALSE)
 
     coefs <- lapply_fn(indices, function(idx_df) {
@@ -162,3 +180,5 @@ run_boots <- function(data, X_base, Y_mat, weights = NULL, boot_type,
 
   betaTilde_boot
 }
+
+

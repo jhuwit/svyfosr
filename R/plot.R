@@ -21,7 +21,10 @@
 plot.svyfui <- function(x, include_joint_ci = TRUE,
                         joint_fill = "#56B4E9FF", pw_fill = "#0072B2FF",
                         joint_alpha = 0.3, pw_alpha = 0.3, ...) {
-  # type <- match.arg(type)
+
+  beta_hat = l = lower_joint = lower_pw = upper_joint = upper_pw = NULL
+  rm(list = c("beta_hat", "l", "lower_joint", "lower_pw", "upper_joint", "upper_pw"))
+
 
   assertthat::assert_that(inherits(x, "svyfui"), msg = "plot.svyfui() requires an object of class 'svyfui'.")
   plt_df = x$tidy_df

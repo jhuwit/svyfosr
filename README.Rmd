@@ -33,7 +33,7 @@ pak::pak("jhuwit/svyfosr")
 
 This is a basic example which shows you how to solve a common problem:
 
-```{r example, eval = F}
+```{r example, eval = FALSE}
 library(svyfosr)
 ## basic example code
 ```

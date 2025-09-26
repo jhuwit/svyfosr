@@ -36,6 +36,10 @@ svyfui <- function(formula,
                    conf_level_pw = 0.95,
                    conf_level_joint = 0.95,
                    ...) {
+  beta_hat = l = lower_joint = lower_pw = upper_joint = upper_pw = NULL
+  psu = strata = weight = . = NULL
+  rm(list = c("beta_hat", "l", "lower_joint", "lower_pw", "upper_joint", "upper_pw",
+              "psu", "strata", "weight", "."))
 
   # deal with weights (copied from glm fn)
   mf <- match.call(expand.dots = FALSE)
