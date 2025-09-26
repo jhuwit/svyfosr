@@ -35,3 +35,6 @@ Imports:
     svrep,
     tibble
 License: MIT + file LICENSE
+Depends: 
+    R (>= 3.5)
+LazyData: true
