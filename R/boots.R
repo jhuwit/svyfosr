@@ -67,7 +67,8 @@ run_boots <- function(data, X_base, Y_mat, weights = NULL, boot_type,
   # add row ID for sampling
   data <- data %>% dplyr::mutate(row_id = dplyr::row_number())
   # handle if family input as character
-  if (is.character(family)) family <- get(family, mode = "function", envir = parent.frame())()
+  family <- resolve_family(family)
+
 
   # ----- coefficient function to get coefficients given X, Y, w -----
   coef_fun <- function(X_tmp, Y_tmp, w_tmp = NULL) {
@@ -75,7 +76,7 @@ run_boots <- function(data, X_base, Y_mat, weights = NULL, boot_type,
       lm_wls_multi(X_tmp, Y_tmp, w = w_tmp)
     } else {
       glm_batch_multiY(X = X_tmp, Y = Y_tmp, w = w_tmp, family = family,
-                       return_se = FALSE, add_intercept = FALSE)$coef
+                      add_intercept = FALSE)$coef
     }
   }
 

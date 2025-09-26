@@ -49,15 +49,3 @@ test_that("glm_batch_multiY errors with bad inputs", {
 
   expect_error(glm_batch_multiY(X, Y2, offset = matrix(1, 5, 2), family = gaussian()))
 })
-
-test_that("glm_batch_multiY respects offsets", {
-  n <- 30; p <- 1; B <- 2
-  X <- matrix(0, n, p)  # no predictors
-  Y <- matrix(rnorm(n * B), n, B)
-
-  off <- matrix(1, n, B)
-  fit_no_offset <- glm_batch_multiY(X, Y, family = gaussian())
-  fit_with_offset <- glm_batch_multiY(X, Y, family = gaussian(), offset = off)
-
-  expect_false(isTRUE(all.equal(fit_no_offset$coef, fit_with_offset$coef)))
-})

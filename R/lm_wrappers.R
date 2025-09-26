@@ -41,13 +41,10 @@ lm_wls_multi <- function(X, Y, w = NULL) {
 #' @param w Optional vector of weights for weighted regression
 #' @param family A GLM family object (e.g., from \code{binomial()}, \code{poisson()}), can also be character
 #' @param add_intercept Whether to add an intercept column to X (default FALSE)
-#' @param offset Optional offset vector or matrix (length n or n x B)
 #' @param start Optional starting value for coefficients (length p or p x B)
 #' @param maxit Maximum number of IRLS iterations (default 50)
 #' @param tol Convergence tolerance (default 1e-8)
 #' @param ridge Ridge penalty to ensure numerical stability (default 1e-8)
-#' @param return_se Whether to compute and return standard errors (default FALSE)
-#' @param estimate_phi Whether to estimate dispersion parameter phi for non-Poisson/Binomial families (default FALSE)
 #' @param verbose Whether to print iteration info (default FALSE)
 #'
 #' @importFrom assertthat assert_that
@@ -60,10 +57,9 @@ glm_batch_multiY <- function(
     X, Y, w = NULL, data = NULL,       # data optional if w is a column name
     family,
     add_intercept = FALSE,
-    offset = NULL,
     start = NULL,
     maxit = 50, tol = 1e-8, ridge = 1e-8,
-    return_se = FALSE, estimate_phi = FALSE, verbose = FALSE
+    verbose = FALSE
 ) {
   assertthat::assert_that(is.matrix(X), is.matrix(Y), msg = "X and Y must be matrices")
   n <- nrow(X); p <- ncol(X); B <- ncol(Y)
@@ -77,19 +73,6 @@ glm_batch_multiY <- function(
 
   if (add_intercept) X <- cbind(Intercept = 1, X)
   p <- ncol(X)
-
-  # ---- offsets ----
-  if (is.null(offset)) {
-    offset <- matrix(0, n, B)
-  } else if (is.vector(offset) && length(offset) == n) {
-    offset <- matrix(offset, n, B)
-  } else if (is.matrix(offset) && nrow(offset) == n && ncol(offset) == 1) {
-    offset <- matrix(offset[,1], n, B)
-  } else if (is.matrix(offset) && nrow(offset) == n && ncol(offset) == B) {
-    # as is
-  } else {
-    stop("offset must be NULL, length-n, nx1, or nxB")
-  }
 
   # ---- family functions ----
   linkinv    <- family$linkinv
@@ -108,7 +91,7 @@ glm_batch_multiY <- function(
   converged <- rep(FALSE, B)
 
   for (it in seq_len(maxit)) {
-    Eta <- X %*% Beta + offset
+    Eta <- X %*% Beta
     Eta <- pmin(pmax(Eta, -35), 35)
     Mu  <- linkinv(Eta)
 

@@ -13,14 +13,12 @@
 #' @keywords internal
 #' @noRd
 get_betatilde = function(X_mat, Y_mat, w = NULL, family = "gaussian"){
-  if (is.character(family)) {
-    family <- match.fun(family)()
-  }
+  family <- resolve_family(family)
 
   if (family$family == "gaussian") {
     coef_mat = lm_wls_multi(X_mat, Y_mat, w)
   } else {
-    coef_mat = glm_batch_multiY(X = X_mat, Y = Y_mat, w = w, family = family, return_se = FALSE,
+    coef_mat = glm_batch_multiY(X = X_mat, Y = Y_mat, w = w, family = family,
                                 add_intercept = FALSE)$coef
   }
   # Obtain betaTilde, fixed effects estimates
