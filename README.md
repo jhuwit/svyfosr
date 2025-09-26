@@ -6,7 +6,8 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of svyfosr is to …
+The goal of svyfosr is to perform survey-weighted function on scalar
+regression.
 
 ## Installation
 
@@ -20,33 +21,63 @@ pak::pak("jhuwit/svyfosr")
 
 ## Example
 
-This is a basic example which shows you how to solve a common problem:
+We load some simulated survey data.
 
 ``` r
 library(svyfosr)
-## basic example code
+library(ggplot2)
+data(sample_df)
+
+sample_df %>% 
+  dplyr::glimpse()
+#> Rows: 975
+#> Columns: 8
+#> $ id       <int> 1421, 1692, 2156, 2841, 3174, 5296, 6796, 7669, 7780, 9758, 1…
+#> $ X        <dbl> 2.00743154, -1.51583313, 0.06838228, -3.68259165, -2.57527700…
+#> $ strata   <int> 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1…
+#> $ psu      <chr> "70", "70", "70", "70", "70", "70", "70", "70", "70", "70", "…
+#> $ weight   <dbl> 76.42787, 82.65374, 82.05325, 91.31247, 86.76654, 85.77362, 8…
+#> $ p_stage1 <dbl> 0.02137936, 0.02137936, 0.02137936, 0.02137936, 0.02137936, 0…
+#> $ p_stage2 <dbl> 0.6120031, 0.5659041, 0.5700456, 0.5122421, 0.5390799, 0.5453…
+#> $ Y        <dbl[,50]> <matrix[26 x 50]>
+
+Y_df = sample_df$Y %>% 
+  tibble::as_tibble() %>% 
+  dplyr::mutate(id = dplyr::row_number()) %>% 
+  tidyr::pivot_longer(cols = -id) %>% 
+  dplyr::mutate(l = as.numeric(sub(".*Y", "", name)))
+
+Y_df %>% 
+  dplyr::filter(id %in% 1:10) %>% 
+  ggplot(aes(x = l, y = value, group = factor(id), color = factor(id))) +
+  geom_line(alpha = 0.25) + 
+  geom_smooth(se = FALSE) + 
+  theme_classic(paper = "lightgrey") +
+  scale_color_viridis_d(option = "D") +
+  theme(legend.position = "none",
+        title = element_text(size = 14)) +
+  theme_sub_axis(text = element_text(size = 12),
+                 title = element_text(size = 14))  +
+  labs(x = "Functional Domain", y = "Y", title = "Smoothed Outcomes for 10 Random Subjects")
+#> `geom_smooth()` using method = 'loess' and formula = 'y ~ x'
 ```
 
-What is special about using `README.Rmd` instead of just `README.md`?
-You can include R chunks like so:
+<img src="man/figures/README-example-1.png" width="100%" /> We fit a
+survey-weighted FoSR model using balanced repeated replication (BRR) to
+estimate standard errors.
 
 ``` r
-summary(cars)
-#>      speed           dist       
-#>  Min.   : 4.0   Min.   :  2.00  
-#>  1st Qu.:12.0   1st Qu.: 26.00  
-#>  Median :15.0   Median : 36.00  
-#>  Mean   :15.4   Mean   : 42.98  
-#>  3rd Qu.:19.0   3rd Qu.: 56.00  
-#>  Max.   :25.0   Max.   :120.00
+model_fit = svyfosr::svyfui(Y ~ X,
+                            data = sample_df, 
+                            weights = weight,
+                            family = gaussian(),
+                            boot_type = "BRR",
+                            num_boots = 100,
+                            parallel = TRUE,
+                            n_cores = 6, 
+                            seed = 2213)
+
+plot(model_fit)
 ```
 
-You’ll still need to render `README.Rmd` regularly, to keep `README.md`
-up-to-date. `devtools::build_readme()` is handy for this.
-
-You can also embed plots, for example:
-
-<img src="man/figures/README-pressure-1.png" width="100%" />
-
-In that case, don’t forget to commit and push the resulting figure
-files, so they display on GitHub and CRAN.
+<img src="man/figures/README-unnamed-chunk-2-1.png" width="100%" />

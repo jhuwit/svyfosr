@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of svyfosr is to perform survey-weighted function on scalar regressiion. 
+The goal of svyfosr is to perform survey-weighted function on scalar regression. 
 
 ## Installation
 
@@ -31,25 +31,51 @@ pak::pak("jhuwit/svyfosr")
 
 ## Example
 
-This is a basic example which shows you how to solve a common problem:
+We load some simulated survey data. 
 
-```{r example, eval = FALSE}
+```{r example}
 library(svyfosr)
-## basic example code
+library(ggplot2)
+data(sample_df)
+
+sample_df %>% 
+  dplyr::glimpse()
+
+Y_df = sample_df$Y %>% 
+  tibble::as_tibble() %>% 
+  dplyr::mutate(id = dplyr::row_number()) %>% 
+  tidyr::pivot_longer(cols = -id) %>% 
+  dplyr::mutate(l = as.numeric(sub(".*Y", "", name)))
+
+Y_df %>% 
+  dplyr::filter(id %in% 1:10) %>% 
+  ggplot(aes(x = l, y = value, group = factor(id), color = factor(id))) +
+  geom_line(alpha = 0.25) + 
+  geom_smooth(se = FALSE) + 
+  theme_classic(paper = "lightgrey") +
+  scale_color_viridis_d(option = "D") +
+  theme(legend.position = "none",
+        title = element_text(size = 14)) +
+  theme_sub_axis(text = element_text(size = 12),
+                 title = element_text(size = 14))  +
+  labs(x = "Functional Domain", y = "Y", title = "Smoothed Outcomes for 10 Random Subjects")
+```
+We fit a survey-weighted FoSR model using balanced repeated replication (BRR) to estimate standard errors.
+
+```{r}
+model_fit = svyfosr::svyfui(Y ~ X,
+                            data = sample_df, 
+                            weights = weight,
+                            family = gaussian(),
+                            boot_type = "BRR",
+                            num_boots = 100,
+                            parallel = TRUE,
+                            n_cores = 6, 
+                            seed = 2213)
+
+plot(model_fit)
 ```
 
-What is special about using `README.Rmd` instead of just `README.md`? You can include R chunks like so:
 
-```{r cars}
-summary(cars)
-```
 
-You'll still need to render `README.Rmd` regularly, to keep `README.md` up-to-date. `devtools::build_readme()` is handy for this.
 
-You can also embed plots, for example:
-
-```{r pressure, echo = FALSE}
-plot(pressure)
-```
-
-In that case, don't forget to commit and push the resulting figure files, so they display on GitHub and CRAN.
