@@ -4,6 +4,8 @@
 # svyfosr
 
 <!-- badges: start -->
+
+[![R-CMD-check](https://github.com/jhuwit/svyfosr/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/jhuwit/svyfosr/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 The goal of svyfosr is to perform survey-weighted function on scalar
@@ -52,7 +54,7 @@ Y_df %>%
   ggplot(aes(x = l, y = value, group = factor(id), color = factor(id))) +
   geom_line(alpha = 0.25) + 
   geom_smooth(se = FALSE) + 
-  theme_classic(paper = "lightgrey") +
+  theme_classic() +
   scale_color_viridis_d(option = "D") +
   theme(legend.position = "none",
         title = element_text(size = 14)) +
