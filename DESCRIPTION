@@ -27,6 +27,8 @@ Imports:
     magrittr,
     mgcv,
     parallelly,
+    progress,
+    progressr,
     purrr,
     refund,
     Rfast,

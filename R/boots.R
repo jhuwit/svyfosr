@@ -41,6 +41,8 @@ sample_data <- function(df) {
 #' @importFrom future plan multisession
 #' @importFrom future.apply future_lapply
 #' @importFrom assertthat assert_that
+#' @importFrom progressr with_progress handlers
+#' @importFrom progress progress_bar
 #' @return An array of bootstrap coefficient estimates of dimension p x L x num_boots
 #'
 #' @keywords internal
@@ -85,7 +87,6 @@ run_boots <- function(data, X_base, Y_mat, weights = NULL, boot_type,
   betaTilde_boot <- NULL
   n = nrow(data)
 
-  # parallel options
   if (parallel) {
     if (is.null(n_cores)) {
       n_cores <- parallelly::availableCores() - 1
@@ -94,12 +95,49 @@ run_boots <- function(data, X_base, Y_mat, weights = NULL, boot_type,
     old_plan <- future::plan()
     on.exit(future::plan(old_plan), add = TRUE)
     future::plan(future::multisession, workers = n_cores)
+
     lapply_fn <- function(X, FUN) {
-      future.apply::future_lapply(X, FUN, future.seed = TRUE)
+      progressr::handlers("cli")
+      progressr::with_progress({
+        p <- progressr::progressor(along = X)
+        future.apply::future_lapply(X, function(xx) {
+          res <- FUN(xx)
+          p()   # tick progress bar
+          res
+        }, future.seed = TRUE)
+      })
     }
   } else {
-    lapply_fn <- lapply
+    lapply_fn <- function(X, FUN) {
+      pb <- progress::progress_bar$new(
+        format = "[:bar] :percent eta: :eta",
+        total = length(X),
+        clear = FALSE, width = 60
+      )
+      lapply(X, function(xx) {
+        res <- FUN(xx)
+        pb$tick()
+        res
+      })
+    }
   }
+
+
+  # # parallel options
+  # if (parallel) {
+  #   if (is.null(n_cores)) {
+  #     n_cores <- parallelly::availableCores() - 1
+  #     message("using ", n_cores, " cores for parallelization")
+  #   }
+  #   old_plan <- future::plan()
+  #   on.exit(future::plan(old_plan), add = TRUE)
+  #   future::plan(future::multisession, workers = n_cores)
+  #   lapply_fn <- function(X, FUN) {
+  #     future.apply::future_lapply(X, FUN, future.seed = TRUE)
+  #   }
+  # } else {
+  #   lapply_fn <- lapply
+  # }
 
   # ----- generate bootstrap indices or weights -----
   if (boot_type %in% c("weighted", "unweighted")) {

@@ -13,6 +13,7 @@
 #' @param seed Random seed for reproducibility.
 #' @param conf_level_joint Confidence level for joint confidence intervals (default 0.95).
 #' @param conf_level_pw Confidence level for pointwise confidence intervals (default 0.95).
+#' @param verbose Whether to print messages about progress
 #' @param ... Additional arguments passed to helpers.
 #'
 #' @importFrom stats model.matrix as.formula model.frame qnorm model.response model.weights var gaussian
@@ -35,6 +36,7 @@ svyfui <- function(formula,
                    seed = 2025,
                    conf_level_pw = 0.95,
                    conf_level_joint = 0.95,
+                   verbose = TRUE,
                    ...) {
   beta_hat = l = lower_joint = lower_pw = upper_joint = upper_pw = NULL
   psu = strata = weight = . = NULL
@@ -57,16 +59,18 @@ svyfui <- function(formula,
   w <- as.vector(model.weights(mf))
   if (is.null(w)) w <- rep(1, nrow(mf))  # default to uniform weights
 
-
+  if (verbose) message("Estimating coefficients")
   # step 1: get betatilde
   betaTilde <- get_betatilde(X_mat = X_base,
                              Y_mat = Y_mat,
                              w = w,
                              family = family)
 
+  if (verbose) message("Smoothing coefficients")
   # step 2: Smooth to get betaHat
   betaHat <- get_betahat(betaTilde = betaTilde, nknots_min = nknots_min)
 
+  if (verbose) message("Bootstrapping")
   # step 3: Run bootstrap
   boots <- run_boots(
     data = data,
@@ -79,6 +83,8 @@ svyfui <- function(formula,
     Y_mat = Y_mat,
     ...
   )
+
+  if (verbose) message("Obtaining pointwise and joint confidence intervals")
   cis <- get_cis(betaTilde_boot = boots,
                  betaHat = betaHat,
                  L = ncol(betaHat),
@@ -109,5 +115,7 @@ svyfui <- function(formula,
               cis = cis,
               tidy_df = plt_df)
   class(out) <- "svyfui"
+
+  if(verbose) message("Completed!")
   return(out)
 }

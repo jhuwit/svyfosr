@@ -243,3 +243,4 @@ test_that("resolve_family works as expected", {
 
   expect_error(resolve_family(123), "'family' must be a family object or a character name of a family")
 })
+

@@ -28,3 +28,5 @@ test_that("weighted bootstrap returns array with expected dimensions in parallel
   expect_true(dim(boots)[2] == L)
   expect_true(dim(boots)[3] == 100)
 })
+
+
