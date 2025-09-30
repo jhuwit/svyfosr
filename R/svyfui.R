@@ -26,6 +26,11 @@
 #'   \item{boots}{Raw bootstrap draws of coefficients}
 #'
 #' @export
+#' @examples
+#' \donttest{
+#'    fit <- svyfui(Y ~ X, data = svyfosr::sample_df, weights = weight)
+#'    plot(fit)
+#' }
 svyfui <- function(formula,
                    data,
                    weights = NULL,

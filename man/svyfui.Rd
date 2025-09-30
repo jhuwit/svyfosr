@@ -54,3 +54,9 @@ A list with components:
 A high-level wrapper for running survey-weighted
 function-on-scalar regression with bootstrap inference.
 }
+\examples{
+\donttest{
+   fit <- svyfui(Y ~ X, data = svyfosr::sample_df, weights = weight)
+   plot(fit)
+}
+}
