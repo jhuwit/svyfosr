@@ -15,4 +15,16 @@ test_that("CIs return list with expected dimensions", {
   expect_equal(dim(ci_res[[1]]), c(L, L, p))
   expect_true(is.vector(ci_res[[2]]))
   expect_true(length(ci_res[[2]]) == p)
+
+  ci_res = get_cis(beta_tilde_boot,
+                   beta_hat,
+                   L = L,
+                   smooth_for_ci = FALSE,
+                   smooth_for_variance = FALSE)
+  expect_true(is.list(ci_res))
+  expect_true(is.array(ci_res[[1]]))
+  expect_equal(dim(ci_res[[1]]), c(L, L, p))
+  expect_true(is.vector(ci_res[[2]]))
+  expect_true(length(ci_res[[2]]) == p)
+
 })
