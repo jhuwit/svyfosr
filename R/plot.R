@@ -1,6 +1,6 @@
 #' Plot method for svyfui objects
 #'
-#' @param x An object of class \code{svyfui}, usually returned by \code{\link{svyfui}}.
+#' @param x An object of class \code{\link{svyfui}}, usually returned by \code{\link{svyfui}}.
 #' @param include_joint_ci Logical; if TRUE, includes joint confidence intervals in the plot (default TRUE).
 #' @param joint_fill Color for joint confidence interval fill (default "#56B4E9FF").
 #' @param pw_fill Color for pointwise confidence interval fill (default "#0072B2FF").
@@ -14,8 +14,8 @@
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' fit <- svyfui(Y ~ X1 + X2, data = dat, weights = "weights")
+#' \donttest{
+#' fit <- svyfui(Y ~ X, data = svyfosr::sample_df, weights = weight)
 #' plot(fit)
 #' }
 plot.svyfui <- function(x, include_joint_ci = TRUE,

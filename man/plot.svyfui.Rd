@@ -15,7 +15,7 @@
 )
 }
 \arguments{
-\item{x}{An object of class \code{svyfui}, usually returned by \code{\link{svyfui}}.}
+\item{x}{An object of class \code{\link{svyfui}}, usually returned by \code{\link{svyfui}}.}
 
 \item{include_joint_ci}{Logical; if TRUE, includes joint confidence intervals in the plot (default TRUE).}
 
@@ -36,8 +36,8 @@ A \code{ggplot} object (recommended).
 Plot method for svyfui objects
 }
 \examples{
-\dontrun{
-fit <- svyfui(Y ~ X1 + X2, data = dat, weights = "weights")
+\donttest{
+fit <- svyfui(Y ~ X, data = svyfosr::sample_df, weights = weight)
 plot(fit)
 }
 }
