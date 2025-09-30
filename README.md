@@ -6,6 +6,8 @@
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/jhuwit/svyfosr/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/jhuwit/svyfosr/actions/workflows/R-CMD-check.yaml)
+[![Codecov test
+coverage](https://codecov.io/gh/jhuwit/svyfosr/graph/badge.svg)](https://app.codecov.io/gh/jhuwit/svyfosr)
 <!-- badges: end -->
 
 The goal of svyfosr is to perform survey-weighted function on scalar
@@ -28,6 +30,7 @@ We load some simulated survey data.
 ``` r
 library(svyfosr)
 library(ggplot2)
+#> Warning: package 'ggplot2' was built under R version 4.4.1
 data(sample_df)
 
 sample_df %>% 
@@ -76,8 +79,13 @@ model_fit = svyfosr::svyfui(Y ~ X,
                             boot_type = "BRR",
                             num_boots = 100,
                             parallel = TRUE,
-                            n_cores = 6, 
+                            n_cores = min(6L, parallelly::availableCores()), 
                             seed = 2213)
+#> Estimating coefficients
+#> Smoothing coefficients
+#> Bootstrapping
+#> Obtaining pointwise and joint confidence intervals
+#> Completed!
 
 plot(model_fit)
 ```
