@@ -56,7 +56,7 @@ run_boots <- function(data, X_base, Y_mat, weights = NULL, boot_type,
   rm(list = c("strata", "psu", "weight"))
 
   if (!all(samp_method_by_stage %in% c("SRSWR", "SRSWOR", "PPSWR",
-                                       "PPSWOR", "POISSON"))) {
+                                       "PPSWOR", "Poisson"))) {
     stop("Each element of `samp_method_by_stage` must be one of the following: \"SRSWR\", \"SRSWOR\", \"PPSWR\", \"PPSWOR\", or \"Poisson\"")
   }
 
@@ -88,6 +88,8 @@ run_boots <- function(data, X_base, Y_mat, weights = NULL, boot_type,
   n = nrow(data)
 
   if (parallel) {
+    options(future.globals.maxSize = 2 * 1024^3)  # Equivalent to 2G
+
     if (is.null(n_cores)) {
       n_cores <- parallelly::availableCores() - 1
       message("using ", n_cores, " cores for parallelization")
