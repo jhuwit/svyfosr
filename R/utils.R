@@ -31,14 +31,14 @@ resolve_family <- function(family) {
 #'
 #' @keywords internal
 #' @noRd
-check_var <- function(x) {
-  expr <- substitute(x)
-
+check_var <- function(expr) {
+  # expr is already unevaluated
   if (is.character(expr)) {
     stop("Quoted variable names are not allowed. Use bare variable names instead, e.g. x = var, not x = 'var'.")
   }
 
-  if (!is.symbol(expr)) {
+  if (!is.symbol(expr) && !(is.call(expr) && expr[[1]] == "$")) {
     stop("Input must be a bare variable name, `$` expression, or external vector")
   }
 }
+

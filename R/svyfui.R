@@ -50,7 +50,7 @@ svyfui <- function(formula,
 
   # deal with weights (copied from glm fn)
   # first check character stuff - should prob move helper fn outside
-  check_var(weights)
+  check_var(substitute(weights))
 
   mf <- match.call(expand.dots = FALSE)
   m <- match(c("formula", "data", "subset", "weights", "na.action"),
