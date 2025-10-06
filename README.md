@@ -30,7 +30,6 @@ We load some simulated survey data.
 ``` r
 library(svyfosr)
 library(ggplot2)
-#> Warning: package 'ggplot2' was built under R version 4.4.1
 data(sample_df)
 
 sample_df %>% 
@@ -72,20 +71,40 @@ survey-weighted FoSR model using balanced repeated replication (BRR) to
 estimate standard errors.
 
 ``` r
+
+
 model_fit = svyfosr::svyfui(Y ~ X,
                             data = sample_df, 
                             weights = weight,
                             family = gaussian(),
                             boot_type = "BRR",
                             num_boots = 100,
-                            parallel = TRUE,
-                            n_cores = min(6L, parallelly::availableCores()), 
+                            parallel = FALSE,
                             seed = 2213)
 #> Estimating coefficients
 #> Smoothing coefficients
 #> Bootstrapping
 #> Obtaining pointwise and joint confidence intervals
 #> Completed!
+
+model_fit
+#> Survey FUI object
+#> -----------------
+#> Number of bootstrap replicates: 100 
+#> # A tibble: 100 × 7
+#>        l beta_hat lower_pw upper_pw lower_joint upper_joint var_name   
+#>    <int>    <dbl>    <dbl>    <dbl>       <dbl>       <dbl> <chr>      
+#>  1     1   -0.179   -0.240   -0.118      -0.258      -0.101 (Intercept)
+#>  2     2   -0.191   -0.245   -0.138      -0.260      -0.122 (Intercept)
+#>  3     3   -0.203   -0.252   -0.154      -0.266      -0.140 (Intercept)
+#>  4     4   -0.214   -0.263   -0.166      -0.276      -0.152 (Intercept)
+#>  5     5   -0.224   -0.275   -0.173      -0.289      -0.159 (Intercept)
+#>  6     6   -0.231   -0.286   -0.177      -0.302      -0.161 (Intercept)
+#>  7     7   -0.237   -0.296   -0.177      -0.313      -0.160 (Intercept)
+#>  8     8   -0.240   -0.304   -0.176      -0.323      -0.158 (Intercept)
+#>  9     9   -0.242   -0.310   -0.174      -0.330      -0.154 (Intercept)
+#> 10    10   -0.242   -0.314   -0.170      -0.334      -0.149 (Intercept)
+#> # ℹ 90 more rows
 
 plot(model_fit)
 ```

@@ -78,7 +78,7 @@ model_fit = svyfosr::svyfui(Y ~ X,
                             parallel = FALSE,
                             seed = 2213)
 
-
+model_fit
 
 plot(model_fit)
 ```
