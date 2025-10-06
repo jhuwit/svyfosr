@@ -5,7 +5,7 @@
 #'
 #' @param formula Formula with functional outcome on predictors, e.g. \code{Y ~ X1 + X2}.
 #' @param data A data frame with functional outcome columns, predictors, weights, etc.
-#' @param weights Optional column name for weights or external weight vector
+#' @param weights Optional bare column name for weights or external weight vector
 #' @param family Outcome distribution family (e.g., "gaussian", "binomial").
 #' @param boot_type Bootstrap method: "BRR", "Rao-Wu-Yue-Beaumont", "weighted", "unweighted".
 #' @param num_boots Number of bootstrap replicates.
@@ -49,6 +49,9 @@ svyfui <- function(formula,
               "psu", "strata", "weight", "."))
 
   # deal with weights (copied from glm fn)
+  # first check character stuff - should prob move helper fn outside
+  check_var(weights)
+
   mf <- match.call(expand.dots = FALSE)
   m <- match(c("formula", "data", "subset", "weights", "na.action"),
              names(mf), 0L)

@@ -21,3 +21,24 @@ resolve_family <- function(family) {
 
   return(family)
 }
+
+#' Check that variable name is bare or external vector
+#'
+#' @description Checks input is a bare variable name or numeric vector
+#' @param x A bare variable name or numeric vector
+#'
+#' @return NULL, throws error if not bare variable name or numeric vector
+#'
+#' @keywords internal
+#' @noRd
+check_var <- function(x) {
+  expr <- substitute(x)
+
+  if (is.character(expr)) {
+    stop("Quoted variable names are not allowed. Use bare variable names instead, e.g. x = var, not x = 'var'.")
+  }
+
+  if (!is.symbol(expr)) {
+    stop("Input must be a bare variable name, `$` expression, or external vector")
+  }
+}

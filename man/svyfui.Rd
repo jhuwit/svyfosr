@@ -24,7 +24,7 @@ svyfui(
 
 \item{data}{A data frame with functional outcome columns, predictors, weights, etc.}
 
-\item{weights}{Optional column name for weights or external weight vector}
+\item{weights}{Optional bare column name for weights or external weight vector}
 
 \item{family}{Outcome distribution family (e.g., "gaussian", "binomial").}
 

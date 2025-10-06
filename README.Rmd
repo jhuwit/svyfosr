@@ -67,15 +67,18 @@ Y_df %>%
 We fit a survey-weighted FoSR model using balanced repeated replication (BRR) to estimate standard errors.
 
 ```{r}
+
+
 model_fit = svyfosr::svyfui(Y ~ X,
                             data = sample_df, 
                             weights = weight,
                             family = gaussian(),
                             boot_type = "BRR",
                             num_boots = 100,
-                            parallel = TRUE,
-                            n_cores = min(6L, parallelly::availableCores()), 
+                            parallel = FALSE,
                             seed = 2213)
+
+
 
 plot(model_fit)
 ```
