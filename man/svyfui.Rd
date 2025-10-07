@@ -49,6 +49,9 @@ A list with components:
 \item{betaHat}{Smoothed coefficient functions}
 \item{cis}{Bootstrap confidence intervals}
 \item{boots}{Raw bootstrap draws of coefficients}
+\item{tidy_df}{Tidy data frame for plotting with columns l (functional domain), beta_hat (estimate),
+lower_pw (pointwise lower CI), upper_pw (pointwise upper CI), lower_joint (joint lower CI), upper_joint (joint upper CI),
+and var_name (variable name from regression)}
 }
 \description{
 A high-level wrapper for running survey-weighted
