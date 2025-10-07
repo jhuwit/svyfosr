@@ -16,6 +16,8 @@ svyfui(
   conf_level_pw = 0.95,
   conf_level_joint = 0.95,
   verbose = TRUE,
+  parallel = FALSE,
+  n_cores = NULL,
   ...
 )
 }
@@ -41,6 +43,10 @@ svyfui(
 \item{conf_level_joint}{Confidence level for joint confidence intervals (default 0.95).}
 
 \item{verbose}{Whether to print messages about progress}
+
+\item{parallel}{Whether to run bootstrap in parallel (default FALSE).}
+
+\item{n_cores}{Number of cores to use if parallel = TRUE}
 
 \item{...}{Additional arguments passed to helpers.}
 }

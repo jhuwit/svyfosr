@@ -13,6 +13,9 @@
 #' @param seed Random seed for reproducibility.
 #' @param conf_level_joint Confidence level for joint confidence intervals (default 0.95).
 #' @param conf_level_pw Confidence level for pointwise confidence intervals (default 0.95).
+#' @param parallel Whether to run bootstrap in parallel (default FALSE).
+#' @param n_cores Number of cores to use if parallel = TRUE
+#'
 #' @param verbose Whether to print messages about progress
 #' @param ... Additional arguments passed to helpers.
 #'
@@ -45,6 +48,8 @@ svyfui <- function(formula,
                    conf_level_pw = 0.95,
                    conf_level_joint = 0.95,
                    verbose = TRUE,
+                   parallel = FALSE,
+                   n_cores = NULL,
                    ...) {
   beta_hat = l = lower_joint = lower_pw = upper_joint = upper_pw = NULL
   psu = strata = weight = . = NULL
