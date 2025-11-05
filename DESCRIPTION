@@ -2,7 +2,7 @@ Package: svyfosr
 Title: Survey-Weighted Function on Scalar Regression
 Version: 0.1.0
 Authors@R: c(
-    person("Lily", "Koffman", , "koffmanlily@gmail.com@gmail.com", role = c("aut", "cre"),
+    person("Lily", "Koffman", , "koffmanlily@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0003-1543-2896")),
     person("John", "Muschelli", , "muschellij2@gmail.com", role = "aut",
            comment = c(ORCID = "0000-0001-6469-1750"))
