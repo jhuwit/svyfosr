@@ -1,16 +1,15 @@
 Package: svyfosr
 Title: Survey-Weighted Function on Scalar Regression
-Version: 0.0.0.9000
+Version: 0.1.0
 Authors@R: c(
-    person("Lily", "Koffman", email = "koffmanlily@gmail.com", role = c("aut", "cre"),
-      comment = c(ORCID = "0000-0003-1543-2896")),
-    person("John", "Muschelli", email = "muschellij2@gmail.com", role = "aut",
-      comment = c(ORCID = "0000-0001-6469-1750"))
+    person("Lily", "Koffman", , "koffmanlily@gmail.com@gmail.com", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0003-1543-2896")),
+    person("John", "Muschelli", , "muschellij2@gmail.com", role = "aut",
+           comment = c(ORCID = "0000-0001-6469-1750"))
   )
-Description: Uses the fast univariate inference (FUI) framework to implement (complex) survey-weighted function on scalar regression.
-    This package allows for fitting function on scalar regression models to complex survey data using the fast univariate inference (FUI) framework.
+Description: Uses the fast univariate inference ('FUI') framework to implement (complex) survey-weighted function on scalar regression.
     It also provides tools for visualizing and interpreting the results of these models.
-    The FUI framework is based on the idea of fitting a series of univariate models to the data, which can be done quickly and efficiently.
+    The 'FUI' framework is based on the idea of fitting a series of univariate models to the data, which can be done quickly and efficiently.
     This approach allows for the incorporation of survey weights and design effects into the analysis, making it suitable for complex survey data.
     The package includes functions for fitting the models, as well as functions for visualizing the results and assessing model fit.
     Overall, this package provides a powerful tool for analyzing complex survey data using function on scalar regression models.
