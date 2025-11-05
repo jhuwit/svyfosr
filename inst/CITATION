@@ -1,0 +1,16 @@
+citHeader("To cite svyfui, please use:")
+
+
+bibentry(
+  bibtype = "Manual",
+  title = "svyfosr: Survey-Weighted Function on Scalar Regression",
+  author = c(
+    person("Lily", "Koffman", email = "koffmanlily@gmail.com",
+           role = c("aut", "cre"), comment = c(ORCID = "0000-0003-1543-2896")),
+    person("John", "Muschelli", email = "muschellij2@gmail.com",
+           role = "aut", comment = c(ORCID = "0000-0001-6469-1750"))
+  ),
+  year = "2025",
+  note = "R package version 0.0.0.9000",
+  url = "https://github.com/jhuwit/svyfosr",
+)
