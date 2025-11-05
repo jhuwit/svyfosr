@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot.R
 \name{plot.svyfui}
 \alias{plot.svyfui}
-\title{Plot method for svyfui objects}
+\title{Plot method for \code{svyfui} objects}
 \usage{
 \method{plot}{svyfui}(
   x,
@@ -33,7 +33,7 @@
 A \code{ggplot} object (recommended).
 }
 \description{
-Plot method for svyfui objects
+Plot method for \code{svyfui} objects
 }
 \examples{
 \donttest{

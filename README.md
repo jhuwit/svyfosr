@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# svyfosr
+# `svyfosr`
 
 <!-- badges: start -->
 
@@ -10,12 +10,12 @@
 coverage](https://codecov.io/gh/jhuwit/svyfosr/graph/badge.svg)](https://app.codecov.io/gh/jhuwit/svyfosr)
 <!-- badges: end -->
 
-The goal of svyfosr is to perform survey-weighted function on scalar
-regression.
+The goal of `svyfosr` is to perform survey-weighted function on scalar
+regression (FoSR).
 
 ## Installation
 
-You can install the development version of svyfosr from
+You can install the development version of `svyfosr` from
 [GitHub](https://github.com/) with:
 
 ``` r
@@ -30,6 +30,7 @@ We load some simulated survey data.
 ``` r
 library(svyfosr)
 library(ggplot2)
+#> Warning: package 'ggplot2' was built under R version 4.4.1
 data(sample_df)
 
 sample_df %>% 
@@ -66,9 +67,10 @@ Y_df %>%
 #> `geom_smooth()` using method = 'loess' and formula = 'y ~ x'
 ```
 
-<img src="man/figures/README-example-1.png" width="100%" /> We fit a
-survey-weighted FoSR model using balanced repeated replication (BRR) to
-estimate standard errors.
+<img src="man/figures/README-example-1.png" width="100%" />
+
+We fit a survey-weighted FoSR model using balanced repeated replication
+(BRR) to estimate standard errors.
 
 ``` r
 

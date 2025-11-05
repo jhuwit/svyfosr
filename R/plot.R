@@ -1,4 +1,4 @@
-#' Plot method for svyfui objects
+#' Plot method for `svyfui` objects
 #'
 #' @param x An object of class \code{\link{svyfui}}, usually returned by \code{\link{svyfui}}.
 #' @param include_joint_ci Logical; if TRUE, includes joint confidence intervals in the plot (default TRUE).

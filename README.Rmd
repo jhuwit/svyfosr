@@ -13,18 +13,18 @@ knitr::opts_chunk$set(
 )
 ```
 
-# svyfosr
+# `svyfosr`
 
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/jhuwit/svyfosr/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/jhuwit/svyfosr/actions/workflows/R-CMD-check.yaml)
 [![Codecov test coverage](https://codecov.io/gh/jhuwit/svyfosr/graph/badge.svg)](https://app.codecov.io/gh/jhuwit/svyfosr)
 <!-- badges: end -->
 
-The goal of svyfosr is to perform survey-weighted function on scalar regression. 
+The goal of `svyfosr` is to perform survey-weighted function on scalar regression (FoSR). 
 
 ## Installation
 
-You can install the development version of svyfosr from [GitHub](https://github.com/) with:
+You can install the development version of `svyfosr` from [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("pak")
@@ -64,6 +64,7 @@ Y_df %>%
 
 
 ```
+
 We fit a survey-weighted FoSR model using balanced repeated replication (BRR) to estimate standard errors.
 
 ```{r}
