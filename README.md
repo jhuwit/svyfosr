@@ -3,6 +3,8 @@
 
 # `svyfosr`
 
+# svyfosr <img src="man/figures/logo.png" align="right" height="160"/>
+
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/jhuwit/svyfosr/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/jhuwit/svyfosr/actions/workflows/R-CMD-check.yaml)
@@ -30,7 +32,6 @@ We load some simulated survey data.
 ``` r
 library(svyfosr)
 library(ggplot2)
-#> Warning: package 'ggplot2' was built under R version 4.4.1
 data(sample_df)
 
 sample_df %>% 
