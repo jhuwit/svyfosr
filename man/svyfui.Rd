@@ -12,6 +12,7 @@ svyfui(
   boot_type = "weighted",
   num_boots = 500,
   nknots_min = NULL,
+  nknots_min_fpca = NULL,
   seed = 2025,
   conf_level_pw = 0.95,
   conf_level_joint = 0.95,
@@ -36,6 +37,8 @@ svyfui(
 
 \item{nknots_min}{Minimum number of knots for smoothing (optional).}
 
+\item{nknots_min_fpca}{Minimum number of knots for FPCA (optional).}
+
 \item{seed}{Random seed for reproducibility.}
 
 \item{conf_level_pw}{Confidence level for pointwise confidence intervals (default 0.95).}
@@ -55,9 +58,9 @@ A list with components:
 \item{betaHat}{Smoothed coefficient functions}
 \item{cis}{Bootstrap confidence intervals}
 \item{boots}{Raw bootstrap draws of coefficients}
-\item{tidy_df}{Tidy data frame for plotting with columns l (functional domain), beta_hat (estimate),
-lower_pw (pointwise lower CI), upper_pw (pointwise upper CI), lower_joint (joint lower CI), upper_joint (joint upper CI),
-and var_name (variable name from regression)}
+\item{tidy_df}{Tidy data frame for plotting with columns \code{l} (functional domain), \code{beta_hat} (estimate),
+\code{lower_pw} (pointwise lower CI), \code{upper_pw} (pointwise upper CI), \code{lower_joint} (joint lower CI), \code{upper_joint} (joint upper CI),
+and \code{var_name} (variable name from regression)}
 }
 \description{
 A high-level wrapper for running survey-weighted

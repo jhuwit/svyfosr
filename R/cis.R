@@ -9,7 +9,7 @@
 #' @param smooth_for_variance Whether to smooth bootstrap estimates for variance calculation (default TRUE)
 #' @param L Number of functional points
 #' @param nknots_min Minimum number of knots for smoothing (optional)
-#' @param nknots_min_cov Minimum number of knots for covariance smoothing (default 35)
+#' @param nknots_min_fpca Minimum number of knots for FPCA (default min(L/2,35))
 #' @param mult_fac Multiplicative factor for variance inflation (default 1.2)
 #' @param conf_level Confidence level for joint CIs (default 0.95)
 #' @importFrom refund fpca.face
@@ -29,15 +29,14 @@ get_cis = function(betaTilde_boot,
                    smooth_for_variance = TRUE,
                    L,
                    nknots_min = NULL,
-                   nknots_min_cov = 35,
+                   nknots_min_fpca = NULL,
                    mult_fac = 1.2,
                    conf_level = 0.95) {
   argvals = 1:L
   B <- dim(betaTilde_boot)[3]
   nknots <- if (is.null(nknots_min)) round(L / 2) else min(round(L / 2), nknots_min)
 
-  nknots_cov <- ifelse(is.null(nknots_min_cov), 35, nknots_min_cov)
-  nknots_fpca <- min(round(L / 2), 35)
+  nknots_fpca <- if (is.null(nknots_min_fpca)) min(round(L / 2), 35) else min(round(L / 2), nknots_min_fpca)
   betaHat_boot <- array(NA, dim = c(nrow(betaHat), ncol(betaHat), ncol(betaTilde_boot[1, , ])))
   betaHat.var <- array(NA, dim = c(L, L, nrow(betaHat)))
   # smooth

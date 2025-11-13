@@ -10,6 +10,8 @@
 #' @param boot_type Bootstrap method: "BRR", "Rao-Wu-Yue-Beaumont", "weighted", "unweighted".
 #' @param num_boots Number of bootstrap replicates.
 #' @param nknots_min Minimum number of knots for smoothing (optional).
+#' @param nknots_min_fpca Minimum number of knots for FPCA (optional).
+
 #' @param seed Random seed for reproducibility.
 #' @param conf_level_joint Confidence level for joint confidence intervals (default 0.95).
 #' @param conf_level_pw Confidence level for pointwise confidence intervals (default 0.95).
@@ -44,6 +46,7 @@ svyfui <- function(formula,
                    boot_type = "weighted",
                    num_boots = 500,
                    nknots_min = NULL,
+                   nknots_min_fpca = NULL,
                    seed = 2025,
                    conf_level_pw = 0.95,
                    conf_level_joint = 0.95,
@@ -105,6 +108,7 @@ svyfui <- function(formula,
                  betaHat = betaHat,
                  L = ncol(betaHat),
                  nknots_min = nknots_min,
+                 nknots_min_fpca = nknots_min_fpca,
                  conf_level = conf_level_joint)
 
   ## step 5: make into tidy data frame
