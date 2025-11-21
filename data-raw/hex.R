@@ -42,19 +42,22 @@ p
 # h_color = "#E59866"
 
 # hex sticker
-sticker(
+
+
+filename = "man/figures/logo.png"
+res = sticker(
   subplot = p,
   package = "svyfosr",
   p_size = 18,
   p_color = "white",
   s_x    = 1.0,
   s_y      = 0.8,    # a bit higher vertically
-  s_width  = 0.85,
-  s_height = 0.85,
+  s_width  = 1,
+  s_height = 0.9,
   h_size = 3,
   h_fill = "#283747",     # dark navy background
   h_color = "#E59866",    # orange border
-  filename = "svyfosr_hex_final.png",
+  filename = filename,
   # url = "github.com/lilykoff/svyfosr",
   u_color = "white",
   white_around_sticker = FALSE,
@@ -63,5 +66,9 @@ sticker(
   l_alpha = 0.5,
   p_fontface = "bold"
 )
-
-
+res@layers$annotate$aes_params$size = 50
+ggsave(plot = res, filename=filename)
+img = magick::image_read(filename)
+img %>%
+  magick::image_trim() %>%
+  magick::image_write(filename)
