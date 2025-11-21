@@ -41,3 +41,4 @@ License: MIT + file LICENSE
 Depends: 
     R (>= 3.5)
 LazyData: true
+URL: https://jhuwit.github.io/svyfosr/
